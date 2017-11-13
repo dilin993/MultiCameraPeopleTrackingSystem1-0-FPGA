@@ -22,7 +22,7 @@ Frame Server::receive()
 {
     boost::system::error_code error;
     uint32_t net_len;
-    size_t len = socket.read_some(
+    size_t len = boost::asio::read(socket,
             boost::asio::buffer( reinterpret_cast<char*>(&net_len), 4),
             error );
     if(error || len!=4)
@@ -32,7 +32,9 @@ Frame Server::receive()
 
     char *inbound_data_ = new char[net_len];
 
-    size_t msg_len = socket.read_some(boost::asio::buffer(inbound_data_,net_len), error);
+    size_t msg_len = boost::asio::read(socket,
+                                       boost::asio::buffer(inbound_data_,net_len),
+                                       error);
 
     if(error || net_len!=msg_len)
     {
