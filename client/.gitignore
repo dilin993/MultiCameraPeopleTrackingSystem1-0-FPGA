@@ -1,0 +1,10 @@
+cmake-build-debug/*
+CMakeCache.txt
+CMakeFiles/*
+cmake_install.cmake
+Makefile
+client
+.cproject
+.idea/*
+.project
+.settings/*

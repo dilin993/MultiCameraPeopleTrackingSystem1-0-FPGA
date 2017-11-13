@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<configuration>
+
+    <server ip="localhost" port="8080"/>
+    <video source="/dev/video0"/>
+
+</configuration>
