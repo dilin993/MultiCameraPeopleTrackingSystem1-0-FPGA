@@ -4,11 +4,12 @@
 
 #include "NodeClient.h"
 
-NodeClient::NodeClient(string ip):
+NodeClient::NodeClient(string ip,unsigned short port):
 resolver(io_service),
 socket(io_service)
 {
     this->ip = ip;
+    this->port = port;
     port = 8080;
 }
 
@@ -27,17 +28,7 @@ void NodeClient::connect()
 
     boost::asio::connect(socket, endpoint_iterator, error);
 
-    if(error==boost::asio::error::connection_refused)
-    {
-        if(port<8090)
-        {
-            port++;
-            connect();
-        }
-        else
-            throw boost::system::system_error(error);
-    }
-    else if (error)
+    if (error)
         throw boost::system::system_error(error);
 }
 

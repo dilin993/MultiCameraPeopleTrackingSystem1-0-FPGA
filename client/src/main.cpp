@@ -50,6 +50,7 @@ int main(int argc, const char * argv[])
 #endif
 
     string serverIP="localhost";
+    unsigned short serverPort = 8080;
     string videoSource="/dev/video0";
     uint8_t cameraID=0;
 
@@ -63,10 +64,11 @@ int main(int argc, const char * argv[])
             serverIP = config.child("server").attribute("ip").as_string();
             videoSource = config.child("video").attribute("source").as_string();
             cameraID = (uint8_t)config.child("camera").attribute("id").as_int();
+            serverPort = (unsigned short)config.child("camera").attribute("id").as_int();
         }
     }
 
-    NodeClient client(serverIP);
+    NodeClient client(serverIP,serverPort);
     client.connect();
     cout << "Connected to " << client.getIP() << ":" << client.getPort() << " !" << endl;
 

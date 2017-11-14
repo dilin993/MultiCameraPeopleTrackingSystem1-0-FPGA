@@ -21,7 +21,7 @@ using boost::asio::ip::tcp;
 class NodeClient
 {
 public:
-    NodeClient(string ip);
+    NodeClient(string ip, unsigned short port);
     void connect();
     void send(Frame frame);
     string getIP();

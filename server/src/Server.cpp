@@ -5,10 +5,15 @@
 #include "Server.h"
 
 Server::Server(int port) :
-acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
-socket(io_service)
+acceptor(io_service),
+socket(acceptor.get_io_service())
 {
-    acceptor.accept(socket);
+    tcp::endpoint endpoint(tcp::v4(), port);
+    acceptor.open(endpoint.protocol());
+    acceptor.bind(endpoint);
+    acceptor.listen(1);
+    //acceptor.accept(socket);
+
     this->port = port;
 }
 
