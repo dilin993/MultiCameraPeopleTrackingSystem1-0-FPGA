@@ -14,7 +14,9 @@ socket(io_service)
 
 void Server::acceptConnection()
 {
-    socket.close();
+    if(socket.is_open())
+        return;
+    //socket.close();
     acceptor.accept(socket);
 }
 

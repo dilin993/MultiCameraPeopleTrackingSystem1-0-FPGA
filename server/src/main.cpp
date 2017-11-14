@@ -34,17 +34,19 @@ int main(void)
             }
             catch (ReceiveException& e)
             {
-                if(e.error!=boost::asio::error::eof)
-                    throw e;
+//                if(e.error!=boost::asio::error::eof)
+//                    throw e;
+////                else
+////                {
+////                    if(isFrameOne)
+////                        server1.acceptConnection();
+////                    else
+////                        server2.acceptConnection();
+////                }
 //                else
-//                {
-//                    if(isFrameOne)
-//                        server1.acceptConnection();
-//                    else
-//                        server2.acceptConnection();
-//                }
-                server1.acceptConnection();
-                continue;
+//                    server1.acceptConnection();
+//                continue;
+                throw e;
             }
         }
     }

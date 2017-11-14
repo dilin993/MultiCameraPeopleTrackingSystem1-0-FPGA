@@ -19,11 +19,14 @@ void NodeClient::connect()
     tcp::resolver::iterator end;
     boost::system::error_code error = boost::asio::error::host_not_found;
 
-    while (error && endpoint_iterator != end)
-    {
-        socket.close();
-        socket.connect(*endpoint_iterator++, error);
-    }
+//    while (error && endpoint_iterator != end)
+//    {
+//        socket.close();
+//        socket.connect(*endpoint_iterator++, error);
+//    }
+
+    boost::asio::connect(socket, endpoint_iterator, error);
+
     if(error==boost::asio::error::connection_refused)
     {
         if(port<8090)
