@@ -10,7 +10,6 @@ socket(io_service)
 {
     this->ip = ip;
     this->port = port;
-    port = 8080;
 }
 
 void NodeClient::connect()

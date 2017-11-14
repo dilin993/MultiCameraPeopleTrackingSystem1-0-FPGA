@@ -13,9 +13,11 @@ int main(void)
     try
     {
         Server server1(8080);
-        Server server2(8081);
         server1.acceptConnection();
+        cout << "Server1 aquired connection!" << endl;
+        Server server2(8081);
         server2.acceptConnection();
+        cout << "Server2 aquired connection!" << endl;
 
         char chCheckForEscKey = 0;
         bool isFrameOne = true;

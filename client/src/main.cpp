@@ -64,7 +64,7 @@ int main(int argc, const char * argv[])
             serverIP = config.child("server").attribute("ip").as_string();
             videoSource = config.child("video").attribute("source").as_string();
             cameraID = (uint8_t)config.child("camera").attribute("id").as_int();
-            serverPort = (unsigned short)config.child("camera").attribute("id").as_int();
+            serverPort = (unsigned short)config.child("server").attribute("port").as_int();
         }
     }
 
