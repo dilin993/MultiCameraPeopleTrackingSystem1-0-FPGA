@@ -12,24 +12,37 @@ int main(void)
 
     try
     {
-        Server server(8080);
+        Server server1(8080);
+        Server server2(8081);
 
         char chCheckForEscKey = 0;
+        bool isFrameOne = true;
 
         while (chCheckForEscKey != 27)
         {
 
             try
             {
-                Frame frame = server.receive();
-                frame.print();
+                Frame frame1 = server1.receive();
+                cout << "################frame1################" << endl;
+                frame1.print();
+                isFrameOne = false;
+                Frame frame2 = server2.receive();
+                cout << "################frame2################" << endl;
+                frame2.print();
+                isFrameOne = true;
             }
             catch (ReceiveException& e)
             {
                 if(e.error!=boost::asio::error::eof)
                     throw e;
                 else
-                    server.acceptConnection();
+                {
+                    if(isFrameOne)
+                        server1.acceptConnection();
+                    else
+                        server2.acceptConnection();
+                }
                 continue;
             }
         }

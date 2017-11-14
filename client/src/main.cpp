@@ -50,8 +50,8 @@ int main(int argc, const char * argv[])
 #endif
 
     string serverIP="localhost";
-    string serverPort="8080";
     string videoSource="/dev/video0";
+    uint8_t cameraID=0;
 
     if(argc>1)
     {
@@ -61,14 +61,14 @@ int main(int argc, const char * argv[])
         {
             pugi::xml_node config = doc.child("configuration");
             serverIP = config.child("server").attribute("ip").as_string();
-            serverPort = config.child("server").attribute("port").as_string();
             videoSource = config.child("video").attribute("source").as_string();
+            cameraID = (uint8_t)config.child("camera").attribute("id").as_int();
         }
     }
 
-    NodeClient client(serverIP,serverPort);
+    NodeClient client(serverIP);
     client.connect();
-    cout << "Connection established!" << endl;
+    cout << "Connected to " << client.getIP() << ":" << client.getPort() << " !" << endl;
 
     /******************Initializing V4L2 Driver Starts Here**********************/
     // 1.  Open the device
@@ -191,6 +191,7 @@ int main(int argc, const char * argv[])
 
         Frame frame;
         frame.frameNo = frameNo;
+        frame.cameraID = cameraID;
         for(int q=0;q<detections.size();q++)
         {
             BoundingBox bbox;

@@ -4,17 +4,17 @@
 
 #include "NodeClient.h"
 
-NodeClient::NodeClient(string ip, string port):
+NodeClient::NodeClient(string ip):
 resolver(io_service),
 socket(io_service)
 {
     this->ip = ip;
-    this->port = port;
+    port = 8080;
 }
 
 void NodeClient::connect()
 {
-    tcp::resolver::query query(ip, port);
+    tcp::resolver::query query(ip, to_string(port));
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
     tcp::resolver::iterator end;
     boost::system::error_code error = boost::asio::error::host_not_found;
@@ -23,6 +23,16 @@ void NodeClient::connect()
     {
         socket.close();
         socket.connect(*endpoint_iterator++, error);
+    }
+    if(error==boost::asio::error::connection_refused)
+    {
+        if(port<8090)
+        {
+            port++;
+            connect();
+        }
+        else
+            throw boost::system::system_error(error);
     }
     if (error)
         throw boost::system::system_error(error);
@@ -50,4 +60,14 @@ void NodeClient::send(Frame frame)
     // write the msg
     boost::asio::write(socket, boost::asio::buffer(outbound_data_),
                        boost::asio::transfer_all(), ignored_error);
+}
+
+string NodeClient::getIP()
+{
+    return ip;
+}
+
+unsigned short NodeClient::getPort()
+{
+    return port;
 }

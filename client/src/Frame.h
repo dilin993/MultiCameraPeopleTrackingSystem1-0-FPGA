@@ -37,6 +37,7 @@ public:
     vector<BoundingBox> detections;
     vector<vector<uint16_t >> histograms;
     uint16_t frameNo;
+    uint8_t cameraID;
 
     template <typename Archive>
     void serialize(Archive& ar, const unsigned int version)
@@ -44,11 +45,13 @@ public:
         ar & detections;
         ar & histograms;
         ar & frameNo;
+        ar & cameraID;
     }
 
     void print()
     {
         cout << "Frame\n{";
+        cout << "\tCameraID: " << cameraID << "\n";
         cout << "\tFrameNO: " << frameNo << "\n";
         cout << "\tdetections=[";
         for(auto const detection:detections)

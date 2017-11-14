@@ -21,16 +21,18 @@ using boost::asio::ip::tcp;
 class NodeClient
 {
 public:
-    NodeClient(string ip,string port);
+    NodeClient(string ip);
     void connect();
     void send(Frame frame);
+    string getIP();
+    unsigned short getPort();
 
 private:
     boost::asio::io_service io_service;
     tcp::resolver resolver;
     tcp::socket socket;
     string ip;
-    string port;
+    unsigned short port;
 };
 
 
