@@ -51,7 +51,7 @@ public:
     void print()
     {
         cout << "Frame\n{";
-        cout << "\tCameraID: " << cameraID << "\n";
+        cout << "\tCameraID: " << (int)cameraID << "\n";
         cout << "\tFrameNO: " << frameNo << "\n";
         cout << "\tdetections=[";
         for(auto const detection:detections)
