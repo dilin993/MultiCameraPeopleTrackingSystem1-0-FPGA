@@ -34,7 +34,7 @@ void NodeClient::connect()
         else
             throw boost::system::system_error(error);
     }
-    if (error)
+    else if (error)
         throw boost::system::system_error(error);
 }
 

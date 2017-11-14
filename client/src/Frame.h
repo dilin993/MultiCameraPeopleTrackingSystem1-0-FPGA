@@ -62,7 +62,7 @@ public:
             cout << detection.width << ",";
             cout << detection.height << "],";
         }
-        cout << "\n}\n";
+        cout << "]\n}\n";
     }
 
 };
