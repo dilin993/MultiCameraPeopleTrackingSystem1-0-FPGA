@@ -4,20 +4,38 @@
 
 #include <iostream>
 #include "Server.h"
+#include "pugixml.hpp"
 
 using namespace std;
 
-int main(void)
+int main(int argc, const char * argv[])
 {
+    unsigned short num_nodes = 0;
+
+    if(argc>1)
+    {
+        pugi::xml_document doc;
+        pugi::xml_parse_result result = doc.load_file(argv[1]);
+        if(result)
+        {
+            pugi::xml_node config = doc.child("configuration");
+            num_nodes = (unsigned short)config.child("main").attribute("num_nodes").as_int();
+        }
+    }
 
     try
     {
+        Server servers[num_nodes];
+        for(unsigned short n=0;n<num_nodes;n++)
+        {
+            servers[n] =
+        }
         Server server1(8080);
         server1.acceptConnection();
-        cout << "Server1 aquired connection!" << endl;
+        cout << "Camera1 aquired connection!" << endl;
         Server server2(8081);
         server2.acceptConnection();
-        cout << "Server2 aquired connection!" << endl;
+        cout << "Camera2 aquired connection!" << endl;
 
         char chCheckForEscKey = 0;
         bool isFrameOne = true;

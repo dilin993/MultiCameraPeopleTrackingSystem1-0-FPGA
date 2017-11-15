@@ -42,6 +42,7 @@ class Server
 {
 public:
     Server(int port);
+    Server();
     void acceptConnection();
     Frame receive();
 
