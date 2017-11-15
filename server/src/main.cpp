@@ -25,50 +25,25 @@ int main(int argc, const char * argv[])
 
     try
     {
-        Server servers[num_nodes];
+        vector<Server> servers(num_nodes);
+        vector<Frame> frames(num_nodes);
         for(unsigned short n=0;n<num_nodes;n++)
         {
-            servers[n] =
+            servers[n] = Server(8080+n);
+            servers[n].acceptConnection();
+            cout << "Waiting for camera" << n << " to connect..." << endl;
+            cout << "Camera" << n << " acquired connection!" << endl;
         }
-        Server server1(8080);
-        server1.acceptConnection();
-        cout << "Camera1 aquired connection!" << endl;
-        Server server2(8081);
-        server2.acceptConnection();
-        cout << "Camera2 aquired connection!" << endl;
 
         char chCheckForEscKey = 0;
         bool isFrameOne = true;
 
         while (chCheckForEscKey != 27)
         {
-
-            try
+            for(unsigned short n=0;n<num_nodes;n++)
             {
-                Frame frame1 = server1.receive();
-                cout << "################frame1################" << endl;
-                frame1.print();
-//                isFrameOne = false;
-                Frame frame2 = server2.receive();
-                cout << "################frame2################" << endl;
-                frame2.print();
-//                isFrameOne = true;
-            }
-            catch (ReceiveException& e)
-            {
-//                if(e.error!=boost::asio::error::eof)
-//                    throw e;
-////                else
-////                {
-////                    if(isFrameOne)
-////                        server1.acceptConnection();
-////                    else
-////                        server2.acceptConnection();
-////                }
-//                else
-//                    server1.acceptConnection();
-//                continue;
-                throw e;
+                frames[n] = servers[n].receive();
+                frames[n].print();
             }
         }
     }
