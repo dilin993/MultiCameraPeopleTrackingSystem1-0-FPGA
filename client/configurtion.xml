@@ -2,8 +2,8 @@
 
 <configuration>
 
-    <server ip="localhost" port="8081"/>
+    <server ip="localhost" port="8080"/>
     <video source="/dev/video0"/>
-    <camera id="1"/>
+    <camera id="0"/>
 
 </configuration>
