@@ -43,6 +43,7 @@ class Server
 public:
     Server(int port);
     Server();
+    Server& operator=(const Server& other);
     void acceptConnection();
     Frame receive();
 

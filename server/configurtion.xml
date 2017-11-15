@@ -2,6 +2,6 @@
 
 <configuration>
 
-    <main num_nodes="2"/>
+    <main num_nodes="2" width="320" height="240"/>
 
 </configuration>

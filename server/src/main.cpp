@@ -11,6 +11,8 @@ using namespace std;
 int main(int argc, const char * argv[])
 {
     unsigned short num_nodes = 0;
+    unsigned short WIDTH = 0;
+    unsigned short HEIGHT = 0;
 
     if(argc>1)
     {
@@ -20,6 +22,8 @@ int main(int argc, const char * argv[])
         {
             pugi::xml_node config = doc.child("configuration");
             num_nodes = (unsigned short)config.child("main").attribute("num_nodes").as_int();
+            WIDTH = (unsigned short)config.child("main").attribute("width").as_int();
+            HEIGHT = (unsigned short)config.child("main").attribute("height").as_int();
         }
     }
 
@@ -27,12 +31,16 @@ int main(int argc, const char * argv[])
     {
         vector<Server> servers(num_nodes);
         vector<Frame> frames(num_nodes);
+        vector<string> windowNames(num_nodes);
+        vector<Mat> imgs(num_nodes);
         for(unsigned short n=0;n<num_nodes;n++)
         {
             servers[n] = Server(8080+n);
-            servers[n].acceptConnection();
             cout << "Waiting for camera" << n << " to connect..." << endl;
+            servers[n].acceptConnection();
             cout << "Camera" << n << " acquired connection!" << endl;
+            windowNames[n] = "camera" + to_string(n) + " detections";
+            namedWindow(windowNames[n]);
         }
 
         char chCheckForEscKey = 0;
@@ -44,7 +52,19 @@ int main(int argc, const char * argv[])
             {
                 frames[n] = servers[n].receive();
                 frames[n].print();
+
+                // draw detections
+                imgs[n] = Mat::zeros(HEIGHT,WIDTH,CV_8UC1);
+                for(auto const bbox : frames[n].detections)
+                {
+                    Point tl(bbox.x,bbox.y);
+                    Point br(bbox.x+bbox.width,bbox.y+bbox.height);
+                    rectangle(imgs[n], tl, br, cv::Scalar(255), 2);
+                }
+                imshow(windowNames[n],imgs[n]);
             }
+
+            chCheckForEscKey = waitKey(1);
         }
     }
     catch (std::exception& e)

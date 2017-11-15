@@ -8,12 +8,6 @@ Server::Server(int port) :
 acceptor(io_service),
 socket(acceptor.get_io_service())
 {
-    tcp::endpoint endpoint(tcp::v4(), port);
-    acceptor.open(endpoint.protocol());
-    acceptor.bind(endpoint);
-    acceptor.listen(1);
-    //acceptor.accept(socket);
-
     this->port = port;
 }
 
@@ -22,6 +16,10 @@ void Server::acceptConnection()
     if(socket.is_open())
         return;
     //socket.close();
+    tcp::endpoint endpoint(tcp::v4(), port);
+    acceptor.open(endpoint.protocol());
+    acceptor.bind(endpoint);
+    acceptor.listen(1);
     acceptor.accept(socket);
 }
 
@@ -55,4 +53,17 @@ Frame Server::receive()
     archive >> t;
 
     return t;
+}
+
+Server::Server() :
+        acceptor(io_service),
+        socket(acceptor.get_io_service())
+{
+    port = 0;
+}
+
+Server &Server::operator=(const Server &other)
+{
+    this->port = other.port;
+    return *this;
 }
