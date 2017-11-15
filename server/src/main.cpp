@@ -87,6 +87,7 @@ int main(int argc, const char * argv[])
                     Rect detection(bbox.x, bbox.y, bbox.width, bbox.height);
                     Point2f location = cameraConfigs[n].convertToGround(detection);
                     detections.push_back(location);
+//                    detections.push_back(Point(bbox.x+bbox.width/2,bbox.y+bbox.height/2));
 
                     int sizes[3] = {8,8,8};
                     MatND histogram(3,sizes,CV_32F);
@@ -112,7 +113,11 @@ int main(int argc, const char * argv[])
 
                 for(int i=0;i<tracks.size();i++)
                 {
-                    drawMarker(imgs[n], tracks[i].getPos(),
+                    Point2f pos = tracks[i].getPos();
+//                    pos *= 20;
+//                    pos.x += 20;
+//                    pos.y += 20;
+                    drawMarker(imgs[n], pos,
                                tracks[i].color,
                                MarkerTypes::MARKER_CROSS, 30, 10);
                 }

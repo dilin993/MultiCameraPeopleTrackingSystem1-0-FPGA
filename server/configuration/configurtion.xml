@@ -4,7 +4,7 @@
 
     <main num_nodes="1" width="320" height="240"/>
 
-    <camera0 config="/home/fyp-zc702/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c0-config.xml"/>
-    <camera1 config="/home/fyp-zc702/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c1-config.xml"/>
+    <camera0 config="/home/dilin/fyp/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c0-config.xml"/>
+    <camera1 config="/home/dilin/fyp/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c0-config.xml"/>
 
 </configuration>
