@@ -82,3 +82,16 @@ double CameraConfig::getTRACK_INIT_TH() const
 {
     return TRACK_INIT_TH;
 }
+
+Point2f CameraConfig::convertToGround(Point2f pos)
+{
+    cv::Mat p = Mat::ones(3,1,DataType<float>::type);
+    p.at<float>(0,0) = pos.x;
+    p.at<float>(1,0) = pos.y;
+
+    p = H * p; // apply homography
+    p.at<float>(0,0) /= p.at<float>(2,0);
+    p.at<float>(1,0) /= p.at<float>(2,0);
+
+    return Point2f(p.at<float>(0,0),p.at<float>(1,0));
+}

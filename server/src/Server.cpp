@@ -41,6 +41,8 @@ Frame Server::receive()
                                        boost::asio::buffer(inbound_data_,net_len),
                                        error);
 
+    cout << "len: " << msg_len << endl;
+
     if(error || net_len!=msg_len)
     {
         throw ReceiveException(msg_len,error);

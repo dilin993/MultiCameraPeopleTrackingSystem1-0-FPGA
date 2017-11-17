@@ -91,8 +91,8 @@ int main(int argc, const char * argv[])
     // 3. Set Image format
     v4l2_format imageFormat;
     imageFormat.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    imageFormat.fmt.pix.width = 320;
-    imageFormat.fmt.pix.height = 240;
+    imageFormat.fmt.pix.width = 360;
+    imageFormat.fmt.pix.height = 288;
     imageFormat.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     imageFormat.fmt.pix.field = V4L2_FIELD_NONE ;
     // tell the device you are using this format

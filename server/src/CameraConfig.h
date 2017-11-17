@@ -34,6 +34,7 @@ class CameraConfig
 public:
     CameraConfig();
     Point2f convertToGround(Rect bbox);
+    Point2f convertToGround(Point2f pos);
     void load(string configFilePath);
     bool isLoaded;
     unsigned short getCameraID() const;

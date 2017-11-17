@@ -7,6 +7,7 @@
 #include "pugixml.hpp"
 #include "CameraConfig.h"
 #include "DataAssociation.h"
+#include "graph.h"
 
 #define DISPLAY_FLAG 1
 
@@ -21,6 +22,7 @@ int main(int argc, const char * argv[])
         unsigned short WIDTH = 0;
         unsigned short HEIGHT = 0;
         vector<CameraConfig> cameraConfigs;
+        double DIST_TH;
 
         if(argc>1)
         {
@@ -32,6 +34,7 @@ int main(int argc, const char * argv[])
                 num_nodes = (unsigned short)config.child("main").attribute("num_nodes").as_int();
                 WIDTH = (unsigned short)config.child("main").attribute("width").as_int();
                 HEIGHT = (unsigned short)config.child("main").attribute("height").as_int();
+                DIST_TH = config.child("main").attribute("dist_th").as_double();
 
                 for(unsigned short n=0;n<num_nodes;n++)
                 {
@@ -48,6 +51,8 @@ int main(int argc, const char * argv[])
         vector<Server> servers(num_nodes);
         vector<Frame> frames(num_nodes);
         vector<string> windowNames(num_nodes);
+        Graph graph(DIST_TH);
+
 #ifdef DISPLAY_FLAG
         vector<Mat> imgs(num_nodes);
 #endif
@@ -58,7 +63,7 @@ int main(int argc, const char * argv[])
             cout << "Waiting for camera" << n << " to connect..." << endl;
             servers[n].acceptConnection();
             cout << "Camera" << n << " acquired connection!" << endl;
-            windowNames[n] = "camera" + to_string(cameraConfigs[n].getCameraID()) + " detections";
+            windowNames[n] = "camera" + to_string(cameraConfigs[n].getCameraID()) + " tracks";
             associations[n] = DataAssociation(cameraConfigs[n].getTRACK_INIT_TH(),
                                               cameraConfigs[n].getREJ_TOL(),
                                               WIDTH,HEIGHT);
@@ -85,9 +90,9 @@ int main(int argc, const char * argv[])
                 for (auto const bbox : frames[n].detections)
                 {
                     Rect detection(bbox.x, bbox.y, bbox.width, bbox.height);
-                    Point2f location = cameraConfigs[n].convertToGround(detection);
-                    detections.push_back(location);
-//                    detections.push_back(Point(bbox.x+bbox.width/2,bbox.y+bbox.height/2));
+
+                    // track bottom middle point
+                    detections.push_back(Point(bbox.x+bbox.width/2,bbox.y+bbox.height));
 
                     int sizes[3] = {8,8,8};
                     MatND histogram(3,sizes,CV_32F);
@@ -111,19 +116,29 @@ int main(int argc, const char * argv[])
                 // draw detections
                 imgs[n] = Mat::zeros(HEIGHT,WIDTH,CV_8UC3);
 
+                vector<TrackedPoint> groundPlanePoints;
+
                 for(int i=0;i<tracks.size();i++)
                 {
                     Point2f pos = tracks[i].getPos();
-//                    pos *= 20;
-//                    pos.x += 20;
-//                    pos.y += 20;
+                    pos = cameraConfigs[n].convertToGround(pos);
                     drawMarker(imgs[n], pos,
                                tracks[i].color,
                                MarkerTypes::MARKER_CROSS, 30, 10);
+                    groundPlanePoints.push_back(TrackedPoint(tracks[i].histogram,
+                                                             pos));
                 }
+
+
 
                 imshow(windowNames[n],imgs[n]);
 #endif
+
+
+                // do correspondence estimation
+                graph.addNodes((uint8_t)n,groundPlanePoints);
+
+                vector<Point2f> uniquePoints = graph.getUniquePoints();
             }
 #ifdef DISPLAY_FLAG
             chCheckForEscKey = waitKey(1);
