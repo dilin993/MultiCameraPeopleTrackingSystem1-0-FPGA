@@ -1,66 +1,107 @@
-//
-// Created by dilin on 10/18/17.
-//
 
 #include "NodeClient.h"
 
-NodeClient::NodeClient(string ip,unsigned short port):
-resolver(io_service),
-socket(io_service)
+NodeClient::NodeClient(boost::asio::io_service &io_service,
+                       string ip,
+                       unsigned short port,
+                       unsigned int width,
+                       unsigned int height,
+                       string videoSource,
+                       uint8_t cameraID):
+connection_(io_service),
+width(width),
+height(height),
+cap(videoSource),
+cameraID(cameraID),
+detector()
 {
-    this->ip = ip;
-    this->port = port;
-}
+    frameNo = 0;
 
-void NodeClient::connect()
-{
+    boost::asio::ip::tcp::resolver resolver(io_service);
     tcp::resolver::query query(ip, to_string(port));
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-    tcp::resolver::iterator end;
-    boost::system::error_code error = boost::asio::error::host_not_found;
+    boost::asio::ip::tcp::resolver::iterator endpoint_iterator =
+            resolver.resolve(query);
 
-//    while (error && endpoint_iterator != end)
-//    {
-//        socket.close();
-//        socket.connect(*endpoint_iterator++, error);
-//    }
-
-    boost::asio::connect(socket, endpoint_iterator, error);
-
-    if (error)
-        throw boost::system::system_error(error);
+    // Start an asynchronous connect operation.
+    boost::asio::async_connect(connection_.socket(), endpoint_iterator,
+                               boost::bind(&NodeClient::handle_connect, this,
+                                           boost::asio::placeholders::error));
 }
 
-void NodeClient::send(Frame frame)
+void NodeClient::handle_connect(const boost::system::error_code& e)
 {
-    std::ostringstream archive_stream;
-    boost::archive::text_oarchive archive(archive_stream);
-    archive << frame;
-    std::string outbound_data_ = archive_stream.str();
-
-    uint32_t net_len = (uint32_t)outbound_data_.length();
-//    uint32_t net_len = htonl( len );
-    unsigned char net_char_len[4];
-    net_char_len[0] = (unsigned char)(net_len >> 0);
-    net_char_len[1] = (unsigned char)(net_len >> 8);
-    net_char_len[2] = (unsigned char)(net_len >> 16);
-    net_char_len[3] = (unsigned char)(net_len >> 24);
-
-    boost::system::error_code ignored_error;
-
-    // write msg length
-    boost::asio::write(socket, boost::asio::buffer( net_char_len, 4));
-    // write the msg
-    boost::asio::write(socket, boost::asio::buffer(outbound_data_),
-                       boost::asio::transfer_all(), ignored_error);
+    if (!e)
+    {
+        capture_frame();
+        connection_.async_write(frame,
+                                boost::bind(&NodeClient::handle_write,
+                                            this,
+                                            boost::asio::placeholders::error));
+    }
+    else
+    {
+        std::cerr << e.message() << std::endl;
+    }
 }
 
-string NodeClient::getIP()
+void NodeClient::handle_write(const boost::system::error_code &e)
 {
-    return ip;
+    if(!e)
+    {
+        frame.print();
+    }
+    else
+    {
+        std::cerr << e.message() << std::endl;
+        if(e==boost::asio::error::connection_refused ||
+                e==boost::asio::error::broken_pipe)
+            return;
+    }
+
+    capture_frame();
+    connection_.async_write(frame,
+                            boost::bind(&NodeClient::handle_write,
+                                        this,
+                                        boost::asio::placeholders::error));
 }
 
-unsigned short NodeClient::getPort()
+void NodeClient::capture_frame()
 {
-    return port;
+    try
+    {
+        cap >> img;
+
+        vector<Rect> detections = detector.detect(img);
+
+        frame.frameNo = frameNo;
+        frame.cameraID = cameraID;
+        frame.detections.clear();
+        frame.histograms.clear();
+        for(int q=0;q<detections.size();q++)
+        {
+            BoundingBox bbox;
+            bbox.x = detections[q].x;
+            bbox.y = detections[q].y;
+            bbox.width = detections[q].width;
+            bbox.height = detections[q].height;
+            frame.detections.push_back(bbox);
+
+            vector<uint16_t> histogram(512);
+            for(int r=0;r<512;r++)
+            {
+                histogram[r] = (uint16_t)detector.histograms[q].at<short>(r);
+            }
+            frame.histograms.push_back(histogram);
+        }
+        frame.set_now();
+        frameNo++;
+    }
+    catch(CaptureException &e)
+    {
+        cerr << "Capture Error: " << e.what() << endl;
+    }
+
+
 }
+
+

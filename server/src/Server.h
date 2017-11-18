@@ -8,50 +8,31 @@
 #include <iostream>
 #include<string>
 #include<opencv2/opencv.hpp>
-#include <boost/array.hpp>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <vector>
+#include "connection.hpp" // Must come before boost/serialization headers.
+#include <boost/serialization/vector.hpp>
 #include "Frame.h"
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 
 using namespace std;
 using namespace cv;
 using boost::asio::ip::tcp;
 
-class ReceiveException : public exception
-{
-public:
-    ReceiveException(size_t bytes_transferred,boost::system::error_code error)
-    {
-        this->bytes_transferred = bytes_transferred;
-        this->error = error;
-    }
-
-    const char * what () const throw ()
-    {
-        string errorStr =  to_string(bytes_transferred) +
-                " bytes transferred. error code: " +
-                boost::system::system_error(error).what();
-        return errorStr.c_str();
-    }
-    size_t bytes_transferred;
-    boost::system::error_code error;
-};
 
 class Server
 {
 public:
-    Server(int port);
-    Server();
-    Server& operator=(const Server& other);
-    void acceptConnection();
-    Frame receive();
+    Server(boost::asio::io_service& io_service, unsigned short port);
 
 private:
-    boost::asio::io_service io_service;
-    tcp::acceptor acceptor;
-    tcp::socket socket;
-    int port;
+    boost::asio::ip::tcp::acceptor acceptor_;
+    void handle_accept(const boost::system::error_code& e, connection_ptr conn);
+    void handle_read(const boost::system::error_code& e, connection_ptr conn);
+    Frame frame;
+
 };
 
 

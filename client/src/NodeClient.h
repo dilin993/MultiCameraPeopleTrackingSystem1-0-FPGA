@@ -13,6 +13,10 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include "Frame.h"
+#include "connection.hpp"
+#include "CaptureHandler.h"
+#include "BGSDetector.h"
+
 
 using namespace std;
 using namespace cv;
@@ -21,18 +25,29 @@ using boost::asio::ip::tcp;
 class NodeClient
 {
 public:
-    NodeClient(string ip, unsigned short port);
-    void connect();
-    void send(Frame frame);
-    string getIP();
-    unsigned short getPort();
+    NodeClient(boost::asio::io_service& io_service,
+               string ip,
+               unsigned short port,
+               unsigned int width,
+               unsigned int height,
+               string videoSource,
+               uint8_t cameraID);
+
 
 private:
-    boost::asio::io_service io_service;
-    tcp::resolver resolver;
-    tcp::socket socket;
-    string ip;
-    unsigned short port;
+    connection connection_;
+    void handle_connect(const boost::system::error_code& e);
+    void handle_write(const boost::system::error_code& e);
+    Frame frame;
+    unsigned int width;
+    unsigned int height;
+    VideoCapture cap;
+    uint8_t cameraID;
+    uint16_t frameNo;
+    void capture_frame();
+    BGSDetector detector;
+    Mat img;
+
 };
 
 

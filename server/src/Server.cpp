@@ -4,68 +4,55 @@
 
 #include "Server.h"
 
-Server::Server(int port) :
-acceptor(io_service),
-socket(acceptor.get_io_service())
+Server::Server(boost::asio::io_service &io_service, unsigned short port):
+        acceptor_(io_service,
+                  boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
+                                                 port))
 {
-    this->port = port;
+    connection_ptr new_conn(new connection(acceptor_.get_io_service()));
+    acceptor_.async_accept(new_conn->socket(),
+                           boost::bind(&Server::handle_accept, this,
+                                       boost::asio::placeholders::error, new_conn));
 }
 
-void Server::acceptConnection()
+void Server::handle_accept(const boost::system::error_code &e, connection_ptr conn)
 {
-    if(socket.is_open())
-        return;
-    //socket.close();
-    tcp::endpoint endpoint(tcp::v4(), port);
-    acceptor.open(endpoint.protocol());
-    acceptor.bind(endpoint);
-    acceptor.listen(1);
-    acceptor.accept(socket);
-}
-
-Frame Server::receive()
-{
-    boost::system::error_code error;
-    uint32_t net_len;
-    size_t len = boost::asio::read(socket,
-            boost::asio::buffer( reinterpret_cast<char*>(&net_len), 4),
-            error );
-    if(error || len!=4)
+    if (!e)
     {
-        throw ReceiveException(len,error);
+        conn->async_read(frame,
+                          boost::bind(&Server::handle_read, this,
+                                      boost::asio::placeholders::error, conn));
     }
 
-    char *inbound_data_ = new char[net_len];
+    // Start an accept operation for a new connection.
+    connection_ptr new_conn(new connection(acceptor_.get_io_service()));
+    acceptor_.async_accept(new_conn->socket(),
+                           boost::bind(&Server::handle_accept, this,
+                                       boost::asio::placeholders::error, new_conn));
+}
 
-    size_t msg_len = boost::asio::read(socket,
-                                       boost::asio::buffer(inbound_data_,net_len),
-                                       error);
-
-    cout << "len: " << msg_len << endl;
-
-    if(error || net_len!=msg_len)
+void Server::handle_read(const boost::system::error_code &e, connection_ptr conn)
+{
+    if (!e)
     {
-        throw ReceiveException(msg_len,error);
+        boost::chrono::high_resolution_clock::time_point stop =
+                boost::chrono::high_resolution_clock::now();
+        boost::chrono::high_resolution_clock::time_point start = frame.timeStamp;
+        frame.print();
+        std::cout
+                << "packet delay = "
+                << boost::chrono::duration_cast<boost::chrono::milliseconds>(stop-start).count()
+                << " ms"
+                << std::endl;
+
+    }
+    else
+    {
+        // An error occurred.
+        std::cerr << e.message() << std::endl;
     }
 
-    std::string archive_data(&inbound_data_[0], net_len);
-    std::istringstream archive_stream(archive_data);
-    boost::archive::text_iarchive archive(archive_stream);
-    Frame t;
-    archive >> t;
-
-    return t;
-}
-
-Server::Server() :
-        acceptor(io_service),
-        socket(acceptor.get_io_service())
-{
-    port = 0;
-}
-
-Server &Server::operator=(const Server &other)
-{
-    this->port = other.port;
-    return *this;
+    conn->async_read(frame,
+                     boost::bind(&Server::handle_read, this,
+                                 boost::asio::placeholders::error, conn));
 }

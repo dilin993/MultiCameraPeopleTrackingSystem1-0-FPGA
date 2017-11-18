@@ -15,4 +15,4 @@ file(GLOB SOURCE_FILES
 
 add_executable(server ${SOURCE_FILES})
 
-target_link_libraries(server ${OpenCV_LIBS} ${Boost_LIBRARIES} -lpthread -lboost_serialization)
+target_link_libraries(server ${OpenCV_LIBS} ${Boost_LIBRARIES} -lpthread -lboost_serialization -lboost_chrono)
