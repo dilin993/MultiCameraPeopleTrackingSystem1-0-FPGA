@@ -16,6 +16,7 @@
 #include "connection.hpp" // Must come before boost/serialization headers.
 #include <boost/serialization/vector.hpp>
 #include "Frame.h"
+#include "FrameQueue.h"
 
 using namespace std;
 using namespace cv;
@@ -25,13 +26,16 @@ using boost::asio::ip::tcp;
 class Server
 {
 public:
-    Server(boost::asio::io_service& io_service, unsigned short port);
+    Server(boost::asio::io_service& io_service,
+           unsigned short port,
+           FrameQueue & frames);
 
 private:
     boost::asio::ip::tcp::acceptor acceptor_;
     void handle_accept(const boost::system::error_code& e, connection_ptr conn);
     void handle_read(const boost::system::error_code& e, connection_ptr conn);
     Frame frame;
+    FrameQueue & frames;
 
 };
 
