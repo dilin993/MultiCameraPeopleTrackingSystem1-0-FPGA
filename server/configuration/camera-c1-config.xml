@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <configuration>
-    <camera id="1" port="8081"/>
+    <camera id="1"/>
     <track TRACK_INIT_TH="0.8" REJ_TOL="5"/>
     <homography mat=
                         "-1.6688907435,	-6.9502305710,	940.69592392565,

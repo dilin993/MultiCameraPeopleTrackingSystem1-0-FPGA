@@ -38,25 +38,15 @@ public:
     void load(string configFilePath);
     bool isLoaded;
     unsigned short getCameraID() const;
-
-    unsigned short getPort() const;
-
     const Mat &getH() const;
-
-private:
-    unsigned short cameraID;
-    unsigned short port;
-    Mat H;
-    int REJ_TOL;
-public:
     int getREJ_TOL() const;
-
     double getTRACK_INIT_TH() const;
 
 private:
+    unsigned short cameraID;
+    Mat H;
+    int REJ_TOL;
     double TRACK_INIT_TH;
-
-
 };
 
 

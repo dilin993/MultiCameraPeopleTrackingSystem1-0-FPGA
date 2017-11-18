@@ -3,7 +3,7 @@
 <configuration>
 
     <server ip="localhost" port="8080"/>
-    <video source="/home/dilin/fyp/people_videos/terrace1-c0.avi" width="360" height="288"/>
+    <video source="/dev/video0" width="640" height="480"/>
     <camera id="0"/>
 
 </configuration>

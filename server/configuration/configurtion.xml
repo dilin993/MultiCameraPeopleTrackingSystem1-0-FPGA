@@ -2,7 +2,7 @@
 
 <configuration>
 
-    <main num_nodes="1" width="360" height="288" dist_th="100"/>
+    <main port="8080" num_nodes="1" width="640" height="480" dist_th="100"/>
 
     <camera0 config="/home/dilin/fyp/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c0-config.xml"/>
     <camera1 config="/home/dilin/fyp/MultiCameraPeopleTrackingSystem1-0/server/configuration/camera-c0-config.xml"/>

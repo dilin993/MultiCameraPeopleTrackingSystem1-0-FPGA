@@ -20,7 +20,7 @@ int main(int argc, const char * argv[])
     {
         string serverIP="localhost";
         unsigned short serverPort = 8080;
-        string videoSource="/dev/video0";
+        string videoSource="0";
         uint8_t cameraID=0;
         unsigned int width,height;
 

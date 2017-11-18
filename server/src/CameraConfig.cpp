@@ -27,7 +27,6 @@ void CameraConfig::load(string configFilePath)
         pugi::xml_node config = doc.child("configuration");
 
         cameraID= (unsigned short)config.child("camera").attribute("id").as_int();
-        port= (unsigned short)config.child("camera").attribute("port").as_int();
 
         TRACK_INIT_TH= config.child("track").attribute("TRACK_INIT_TH").as_double();
         REJ_TOL = config.child("track").attribute("REJ_TOL").as_int();
@@ -63,10 +62,6 @@ unsigned short CameraConfig::getCameraID() const
     return cameraID;
 }
 
-unsigned short CameraConfig::getPort() const
-{
-    return port;
-}
 
 const Mat &CameraConfig::getH() const
 {
