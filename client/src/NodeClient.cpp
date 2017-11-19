@@ -73,7 +73,7 @@ void NodeClient::capture_frame()
     {
         cap >> img;
 
-        imshow("Image",img);
+        //imshow("Image",img);
 
         vector<Rect> detections = detector.detect(img);
 
@@ -100,7 +100,7 @@ void NodeClient::capture_frame()
         frame.set_now();
         frameNo++;
 
-        waitKey(1);
+        //waitKey(1);
     }
     catch(CaptureException &e)
     {
