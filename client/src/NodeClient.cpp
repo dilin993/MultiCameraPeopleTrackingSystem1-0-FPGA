@@ -72,6 +72,11 @@ void NodeClient::capture_frame()
     try
     {
         cap >> img;
+        for (int i =0;i<320*240;i++){
+
+        printf("%f\n",img.at<Vec3b>(k)[0]);
+        mask.at<unsigned char>(i) = dst[i];
+        }
 
         //imshow("Image",img);
 
