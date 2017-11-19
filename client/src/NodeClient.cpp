@@ -18,7 +18,7 @@ detector()
     frameNo = 0;
 
     if(!cap.isOpened())  // check if we succeeded
-        throw runtime_error("Vide source failed to open.")
+        throw runtime_error("Vide source failed to open.");
 
     cap.set(CV_CAP_PROP_FRAME_WIDTH,width);
     cap.set(CV_CAP_PROP_FRAME_HEIGHT,height);
