@@ -32,6 +32,8 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
     while(!XBacksub_IsDone(&backsub));
 
     for (int i =0;i<320*240;i++){
+
+        printf("%d\n",dst[i]);
         mask.at<unsigned char>(i) = dst[i];
     }
 
