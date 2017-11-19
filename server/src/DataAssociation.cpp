@@ -132,22 +132,22 @@ double DataAssociation::averageError(Point2f a, Point2f b)
 
 double DataAssociation::averageError(Point2f a, Point2f b, MatND histA, MatND histB)
 {
-    double dh = compareHist(histA,histB,HISTCMP_BHATTACHARYYA);
-    dh = 20.0 * (1 - dh);
-    double e = dh + averageError(a,b);
-    return  e;
+//    double dh = compareHist(histA,histB,HISTCMP_BHATTACHARYYA);
+//    dh = 20.0 * (1 - dh);
+//    double e = dh + averageError(a,b);
+//    return  e;
 
-//    double constGaus = 1.0/sqrt(2*M_PI*var_m);
-//    double dist = pow(a.x-b.x,2.0);
-//    dist += pow(a.y-b.y,2.0);
-//    dist /= (2.0*var_m);
-//    double w_d = constGaus * exp(-dist);
-//
-//    double w_c = compareHist(histA,histB,HISTCMP_BHATTACHARYYA);
-//    w_c = 1 - w_c;
-//
-//    double w =  (1-alpha)*w_d + alpha * w_c;
-//    return 1 - w;
+    double constGaus = 1.0/sqrt(2*M_PI*var_m);
+    double dist = pow(a.x-b.x,2.0);
+    dist += pow(a.y-b.y,2.0);
+    dist /= (2.0*var_m);
+    double w_d = constGaus * exp(-dist);
+
+    double w_c = compareHist(histA,histB,HISTCMP_BHATTACHARYYA);
+    w_c = 1 - w_c;
+
+    double w =  (1-alpha)*w_d + alpha * w_c;
+    return 1 - w;
 
 }
 
