@@ -12,33 +12,28 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
         GammaCorrection(img,img,2.0);
 
     histograms.clear();
-
-    if(method==BGS_GMM)
-    {
-        pMOG2->apply(img,mask);
-    }
-    else
-    {
-        for(int i=2;i>0;i--)
+     for(int k=0;(k<img.rows*img.cols);k+=1)
         {
-            frames[i] = frames[i-1].clone();
-        }
-        frames[0] = img.clone();
-
-        if(frameCount<3)
-        {
-            frameCount++;
-            return detections;
+            ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
+            
         }
 
-        backgroundSubstraction(frames[0],frames[1],frames[2],
-                               bgModel,mask,TH);
+    memcpy(src,ybuffer,sizeof(uint8_t)*WIDTH*HEIGHT);
+    if (isFirst){
+        backsub_config(true);
+        isFirst = false;
+    }
+    else{
+        backsub_config(false);
     }
 
-#ifdef BGS_DEBUG_MODE
-    cv::imshow("BackSub",mask);
-#endif
+    XBacksub_Start(&backsub);
 
+    while(!XBacksub_IsDone(&backsub));
+
+    for (int i =0;i<320*240;i++){
+        mask.at<unsigned char>(i) = dst[i];
+    }
 
     cv::Mat structuringElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 
@@ -63,10 +58,6 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
         cv::Scalar color(255);
         drawContours(shape, contours, i, color, CV_FILLED);
     }
-
-#ifdef BGS_DEBUG_MODE
-    cv::imshow("Shape",shape);
-#endif
 
     std::vector<std::vector<cv::Point> > convexHulls(contours.size());
 
@@ -144,11 +135,36 @@ BGSDetector::BGSDetector(double TH,
                          bool doGammaCorrection) :
 TH(TH),
 method(method),
-doGamaCorrection(doGammaCorrection)
+doGamaCorrection(doGammaCorrection), mask(240,320,CV_8UC1)
 {
     frameCount = 0;
-    if(method==BGS_GMM)
-        pMOG2 = cv::bgsegm::createBackgroundSubtractorMOG();
+    // if(method==BGS_GMM)
+    //     pMOG2 = cv::bgsegm::createBackgroundSubtractorMOG();
+
+    fdIP = open ("/dev/mem", O_RDWR);
+    if (fdIP < 1) {
+        perror("Error");
+        return;
+    }
+
+    ybuffer = new uint8_t[WIDTH*HEIGHT];
+
+    src = (uint8_t*)mmap(NULL, DDR_RANGE,PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, TX_BASE_ADDR); 
+    dst = (uint8_t*)mmap(NULL, DDR_RANGE,PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, RX_BASE_ADDR); 
+
+    if(backsub_init(&backsub)==0) {
+        printf("IP Core Initialized\n");
+    }
+}
+
+BGSDetector::~BGSDetector(){
+    
+    backsub_rel(&backsub);
+
+    munmap((void*)src, DDR_RANGE);
+    munmap((void*)dst, DDR_RANGE);
+    delete[] ybuffer;
+    close(fdIP);
 }
 
 void BGSDetector::GammaCorrection(cv::Mat &src, cv::Mat &dst, float fGamma)
@@ -196,6 +212,39 @@ void BGSDetector::GammaCorrection(cv::Mat &src, cv::Mat &dst, float fGamma)
         }
     }
 
+}
+
+int BGSDetector::backsub_init(XBacksub * backsub_ptr){
+
+    // fd = open ("/dev/mem", O_RDWR);
+    // if (fd < 1) {
+    //     printf("Dev mem open failed\n");
+    //     return -1;
+    // }
+
+    backsub_ptr->Crtl_bus_BaseAddress = (u32)mmap(NULL, AXILITE_RANGE, PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, CRTL_BUS_BASEADDR);
+    backsub_ptr->Axilites_BaseAddress = (u32)mmap(NULL, AXILITE_RANGE, PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, AXILITES_BASEADDR);
+    backsub_ptr->IsReady = XIL_COMPONENT_IS_READY;
+    return 0;
+}
+
+void BGSDetector::backsub_rel(XBacksub * backsub_ptr){
+    munmap((void*)backsub_ptr->Crtl_bus_BaseAddress, AXILITE_RANGE);
+    munmap((void*)backsub_ptr->Axilites_BaseAddress, AXILITE_RANGE);
+}
+
+void BGSDetector::backsub_config(bool ini) {
+
+    XBacksub_Set_frame_in(&backsub,(u32)TX_BASE_PTR);
+    XBacksub_Set_frame_out(&backsub,(u32)RX_BASE_PTR);
+    XBacksub_Set_init(&backsub, ini);
+}
+
+void BGSDetector::print_config() {
+    printf("Is Ready = %d \n", XBacksub_IsReady(&backsub));
+    printf("Frame in = %X \n", XBacksub_Get_frame_in(&backsub));
+    printf("Frame out = %X \n", XBacksub_Get_frame_out(&backsub));
+    printf("Init = %d \n", XBacksub_Get_init(&backsub));
 }
 
 Blob::Blob(std::vector<cv::Point> _contour)

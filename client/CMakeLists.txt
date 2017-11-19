@@ -12,6 +12,8 @@ file(GLOB SOURCE_FILES
         "src/*.h"
         "src/*.cpp"
         "src/*.hpp"
+	"src/*.c"
+        "src/headers/xparameters.h"
         )
 
 
