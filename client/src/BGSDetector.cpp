@@ -33,7 +33,7 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
 
     for (int i =0;i<320*240;i++){
 
-        printf("%d\n",src[i]);
+        printf("%d\n",img.at<Vec3b>(i)[0]);
         mask.at<unsigned char>(i) = dst[i];
     }
 
