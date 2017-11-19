@@ -13,11 +13,12 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
 
     histograms.clear();
     Mat gray(240,320,CV_8UC1);
-    cvtColor(img,gray,COLOR_BGR2GRAY);
+    printf("%d, %d\n",img.rows,img.cols );
+    //cvtColor(img,gray,COLOR_BGR2GRAY);
      for(int k=0;(k<img.rows*img.cols);k+=1)
         {
-            //ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
-            ybuffer[k] = gray.at<unsigned char>(k);
+            ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
+            //ybuffer[k] = gray.at<unsigned char>(k);
             
         }
 
@@ -36,7 +37,7 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
 
     for (int i =0;i<320*240;i++){
 
-        printf("%d\n",ybuffer[i]);
+        //printf("%d\n",ybuffer[i]);
         mask.at<unsigned char>(i) = dst[i];
     }
 
