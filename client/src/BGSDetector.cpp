@@ -34,7 +34,7 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
     for (int i =0;i<320*240;i++){
 
         printf("%d\n",dst[i]);
-        mask.at<unsigned char>(i) = dst[i];
+        mask.at<unsigned char>(i) = src[i];
     }
 
     cv::Mat structuringElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
