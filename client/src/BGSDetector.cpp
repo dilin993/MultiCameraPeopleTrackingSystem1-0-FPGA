@@ -12,17 +12,14 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
         GammaCorrection(img,img,2.0);
 
     histograms.clear();
-    Mat gray(240,320,CV_8UC1);
-    printf("%d, %d\n",img.rows,img.cols );
-    //cvtColor(img,gray,COLOR_BGR2GRAY);
-     for(int k=0;(k<img.rows*img.cols);k+=1)
-        {
-            ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
-            //ybuffer[k] = gray.at<unsigned char>(k);
+    cvtColor(img,gray,COLOR_BGR2GRAY);
+    // for(int k=0;(k<img.rows*img.cols);k+=1)
+    // {
+    //     ybuffer[k] = img.at<unsigned char>(k);  
             
-        }
+    // }
 
-    memcpy(src,ybuffer,sizeof(uint8_t)*WIDTH*HEIGHT);
+    memcpy(src,gray.data,sizeof(uint8_t)*WIDTH*HEIGHT);
     if (isFirst){
         backsub_config(true);
         isFirst = false;
@@ -141,7 +138,7 @@ BGSDetector::BGSDetector(double TH,
                          bool doGammaCorrection) :
 TH(TH),
 method(method),
-doGamaCorrection(doGammaCorrection), mask(240,320,CV_8UC1)
+doGamaCorrection(doGammaCorrection), mask(240,320,CV_8UC1),gray(240,320,CV_8UC1)
 {
     frameCount = 0;
     // if(method==BGS_GMM)
@@ -153,7 +150,7 @@ doGamaCorrection(doGammaCorrection), mask(240,320,CV_8UC1)
         return;
     }
 
-    ybuffer = new uint8_t[WIDTH*HEIGHT];
+    //ybuffer = new uint8_t[WIDTH*HEIGHT];
 
     src = (uint8_t*)mmap(NULL, DDR_RANGE,PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, TX_BASE_ADDR); 
     dst = (uint8_t*)mmap(NULL, DDR_RANGE,PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, fdIP, RX_BASE_ADDR); 
@@ -169,7 +166,7 @@ BGSDetector::~BGSDetector(){
 
     munmap((void*)src, DDR_RANGE);
     munmap((void*)dst, DDR_RANGE);
-    delete[] ybuffer;
+    //delete[] ybuffer;
     close(fdIP);
 }
 

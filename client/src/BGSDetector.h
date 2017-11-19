@@ -76,12 +76,10 @@ public:
 private:
     void backgroundSubstraction(cv::Mat &frame0, cv::Mat &frame1, cv::Mat &frame2
             , cv::Mat &bgModel, cv::Mat &mask, double TH=15);
-    cv::Mat frames[3];
-    cv::Mat bgModel;
     cv::Mat mask;
+    Mat gray;
     uint8_t frameCount;
     double TH;
-    cv::Ptr<cv::BackgroundSubtractor> pMOG2; //MOG2 Background subtractor
     void GammaCorrection(cv::Mat& src, cv::Mat& dst, float fGamma);
 
     //Hardware 
@@ -100,7 +98,7 @@ private:
     XBacksub backsub;
     uint8_t * src;
     uint8_t * dst;
-    uint8_t * ybuffer;
+    //uint8_t * ybuffer;
     int fdIP;
     bool isFirst =true;
 };
