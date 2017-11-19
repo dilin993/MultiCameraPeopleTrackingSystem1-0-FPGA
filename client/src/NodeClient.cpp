@@ -16,6 +16,10 @@ cameraID(cameraID),
 detector()
 {
     frameNo = 0;
+
+    if(!cap.isOpened())  // check if we succeeded
+        throw runtime_error("Vide source failed to open.")
+
     cap.set(CV_CAP_PROP_FRAME_WIDTH,width);
     cap.set(CV_CAP_PROP_FRAME_HEIGHT,height);
 
@@ -103,7 +107,7 @@ void NodeClient::capture_frame()
 
         //waitKey(1);
     }
-    catch(CaptureException &e)
+    catch(exception &e)
     {
         cerr << "Capture Error: " << e.what() << endl;
     }
