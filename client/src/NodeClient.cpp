@@ -11,7 +11,7 @@ NodeClient::NodeClient(boost::asio::io_service &io_service,
 connection_(io_service),
 width(width),
 height(height),
-cap(videoSource),
+cap(0),
 cameraID(cameraID),
 detector()
 {
