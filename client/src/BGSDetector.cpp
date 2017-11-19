@@ -14,7 +14,8 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
     histograms.clear();
      for(int k=0;(k<img.rows*img.cols);k+=1)
         {
-            ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
+            //ybuffer[k] = (img.at<Vec3b>(k)[0] + img.at<Vec3b>(k)[1] + img.at<Vec3b>(k)[3])/3;  
+            ybuffer[k] = img.at<Vec3b>(k)[0];
             
         }
 
@@ -33,7 +34,7 @@ std::vector<cv::Rect> BGSDetector::detect(cv::Mat &img)
 
     for (int i =0;i<320*240;i++){
 
-        printf("%d\n",img.at<Vec3b>(i)[0]);
+        printf("%d\n",ybuffer[i]);
         mask.at<unsigned char>(i) = dst[i];
     }
 
